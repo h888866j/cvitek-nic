@@ -6,6 +6,7 @@ use alloc::{boxed::Box, vec, vec::Vec};
 /// The unified type of the NIC devices.
 #[cfg(feature = "net")]
 pub type AxNetDevice = Box<dyn NetDriverOps>;
+pub type AxPhyDevice = Box<dyn PhyDriverOps>;
 /// The unified type of the block storage devices.
 #[cfg(feature = "block")]
 pub type AxBlockDevice = Box<dyn BlockDriverOps>;

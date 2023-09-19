@@ -19,4 +19,4 @@ spin = "0.9"
 driver_common = { path = "../driver_common" }
 log = "0.4"
 cvitek-nic = { path = "../cvitek-nic", optional = true  }
-cvitek-phy = { path = "../cvitek-phy",optional=true}
+cvitek-phy = { path = "../cvitek-phy", optional = true  }

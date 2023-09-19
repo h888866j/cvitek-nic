@@ -10,6 +10,14 @@ macro_rules! register_net_driver {
     };
 }
 
+macro_rules! register_phy_driver {
+    ($driver_type:ty, $device_type:ty) => {
+        /// The unified type of the PHY devices.
+        #[cfg(not(feature = "dyn"))]
+        pub type AxPhyDevice =$device_type;
+    };
+}
+
 macro_rules! register_block_driver {
     ($driver_type:ty, $device_type:ty) => {
         /// The unified type of the NIC devices.
@@ -57,6 +65,11 @@ macro_rules! for_each_drivers {
         #[cfg(net_dev = "cviteknic")]
         {
             type $drv_type = crate::drivers::CvitekNicDriver;
+            $code
+        }
+        #[cfg(phy_dev = "cvitek_phy")]
+        {
+            type $drv_type = crate::drivers::CvitekPhyDriver;
             $code
         }
     }};

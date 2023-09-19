@@ -5,16 +5,19 @@
 #![feature(const_slice_from_raw_parts_mut)]
 
 mod net_buf;
+#[cfg(feature = "cvitek_phy")]
+pub mod cvitekphy;
 
 use core::ptr::NonNull;
 
 #[cfg(feature = "cviteknic")]
-pub mod cvitek;
+pub mod cviteknic;
 
 #[macro_use]
 extern crate log;
 extern crate alloc;
 pub use cvitek_nic::{CvitekNicDevice, CvitekNicTraits, Packet, RxBuffer, TxBuffer};
+pub use cvitek_phy::CvitekPhyTraits;
 
 #[doc(no_inline)]
 pub use driver_common::{BaseDriverOps, DevError, DevResult, DeviceType};
@@ -81,6 +84,9 @@ pub trait NetDriverOps: BaseDriverOps {
     fn alloc_tx_buffer(&self, size: usize) -> DevResult<TxBuf>;
 }
 
+pub trait PhyDriverOps: BaseDriverOps{
+    
+}
 pub enum TxBuf {
     CvitekNic(TxBuffer),
     Virtio(NetBufPtr),

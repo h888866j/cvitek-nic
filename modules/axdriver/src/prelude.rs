@@ -8,3 +8,4 @@ pub use {crate::structs::AxBlockDevice, driver_block::BlockDriverOps};
 pub use {crate::structs::AxDisplayDevice, driver_display::DisplayDriverOps};
 #[cfg(feature = "net")]
 pub use {crate::structs::AxNetDevice, driver_net::NetDriverOps};
+pub use {crate::structs::AxPhyDevice, driver_net::PhyDriverOps};
