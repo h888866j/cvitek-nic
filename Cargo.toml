@@ -13,6 +13,7 @@ members = [
     "apps/net/udpserver",
     "apps/net/cvitek_nic_test",
     "apps/net/cvitek_nic_httpserver_test",
+    "apps/net/cvitek_phy_test",
     "apps/task/parallel",
     "apps/task/sleep",
     "apps/task/yield",
@@ -51,6 +52,7 @@ members = [
     "crates/timer_list",
     "crates/tuple_for_each",
     "crates/cvitek-nic",
+    "crates/cvitek-phy",
 
     "modules/axalloc",
     "modules/axconfig",

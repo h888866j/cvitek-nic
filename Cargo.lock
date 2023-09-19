@@ -606,6 +606,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "cvitek-phy"
+version = "0.1.0"
+dependencies = [
+ "bit_field",
+ "log",
+ "smoltcp 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "volatile 0.3.0",
+]
+
+[[package]]
 name = "cvitek_nic_httpserver_test"
 version = "0.1.0"
 dependencies = [
@@ -618,6 +628,13 @@ dependencies = [
 
 [[package]]
 name = "cvitek_nic_test"
+version = "0.1.0"
+dependencies = [
+ "libax",
+]
+
+[[package]]
+name = "cvitek_phy_test"
 version = "0.1.0"
 dependencies = [
  "libax",
@@ -678,6 +695,7 @@ name = "driver_net"
 version = "0.1.0"
 dependencies = [
  "cvitek-nic",
+ "cvitek-phy",
  "driver_common",
  "log",
  "spin 0.9.8",
