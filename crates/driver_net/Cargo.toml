@@ -12,7 +12,7 @@ documentation = "https://rcore-os.github.io/arceos/driver_net/index.html"
 [features]
 default = []
 cviteknic = ["dep:cvitek-nic"]
-cvitek_phy = ["dep:cvitek-phy"]
+cvitekphy = ["dep:cvitek-phy"]
 
 [dependencies]
 spin = "0.9"

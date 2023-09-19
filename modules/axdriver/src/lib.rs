@@ -80,6 +80,9 @@ mod cvitek_traits;
 #[cfg(feature = "cviteknic")]
 pub use cvitek_traits::CvitekNicTraitsImpl;
 
+#[cfg(feature = "cvitekphy")]
+pub use cvitek_traits::CvitekPhyTraitsImpl;
+
 pub mod prelude;
 
 #[allow(unused_imports)]

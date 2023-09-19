@@ -8,4 +8,4 @@ edition = "2021"
 default = ["libax/default"]
 
 [dependencies]
-libax = { path = "../../../ulib/libax", default-features = false, features = ["paging","multitask","cvitek_phy"]}
+libax = { path = "../../../ulib/libax", default-features = false, features = ["paging","multitask","cvitekphy"]}

@@ -5,7 +5,7 @@
 #![feature(const_slice_from_raw_parts_mut)]
 
 mod net_buf;
-#[cfg(feature = "cvitek_phy")]
+#[cfg(feature = "cvitekphy")]
 pub mod cvitekphy;
 
 use core::ptr::NonNull;
