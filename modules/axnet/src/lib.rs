@@ -41,7 +41,7 @@ pub use smoltcp::wire::{IpAddress as IpAddr, IpEndpoint as SocketAddr, Ipv4Addre
 use axdriver::{prelude::*, AxDeviceContainer};
 
 /// Initializes the network subsystem by NIC devices.
-pub fn init_network(mut net_devs: AxDeviceContainer<AxNetDevice>) {
+pub fn init_network(mut net_devs: AxDeviceContainer<AxNetDevice>,mut phy_devs: AxDeviceContainer<AxPhyDevice>) {
     info!("Initialize network subsystem...");
 
     let dev = net_devs.take_one().expect("No NIC device found!");

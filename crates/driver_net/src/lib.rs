@@ -17,7 +17,7 @@ pub mod cviteknic;
 extern crate log;
 extern crate alloc;
 pub use cvitek_nic::{CvitekNicDevice, CvitekNicTraits, Packet, RxBuffer, TxBuffer};
-pub use cvitek_phy::CvitekPhyTraits;
+pub use cvitek_phy::{CvitekPhyDevice, CvitekPhyTraits};
 
 #[doc(no_inline)]
 pub use driver_common::{BaseDriverOps, DevError, DevResult, DeviceType};
@@ -85,7 +85,12 @@ pub trait NetDriverOps: BaseDriverOps {
 }
 
 pub trait PhyDriverOps: BaseDriverOps{
-    
+    /// configure phy register
+    fn configure(&self);
+    /// start phy transmit
+    fn start(&self);
+    /// stop phy transmit
+    fn stop(&self);
 }
 pub enum TxBuf {
     CvitekNic(TxBuffer),

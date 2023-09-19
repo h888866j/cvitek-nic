@@ -1,5 +1,6 @@
 
 pub use super::CvitekPhyTraits;
+pub use super::CvitekPhyDevice;
 use core::marker::PhantomData;
 use super::CvitekNicDevice;
 pub struct CvitekPhy<A>
