@@ -18,6 +18,7 @@ smp = ["axhal/smp", "spinlock/smp"]
 
 fs = ["alloc", "paging", "axdriver/virtio-blk", "dep:axfs"] # TODO: remove "paging"
 net = ["alloc", "paging", "axdriver/virtio-net", "dep:axnet"]
+phy = ["alloc", "paging", "dep:axnet"]
 cviteknic = ["alloc", "paging", "axdriver/cviteknic", "dep:axnet"]
 cvitekphy = ["alloc", "paging", "axdriver/cvitekphy","dep:axnet"]
 display = ["alloc", "paging", "axdriver/virtio-gpu", "dep:axdisplay"]

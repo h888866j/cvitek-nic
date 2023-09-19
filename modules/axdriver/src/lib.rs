@@ -95,7 +95,7 @@ pub use self::structs::AxBlockDevice;
 pub use self::structs::AxDisplayDevice;
 #[cfg(feature = "net")]
 pub use self::structs::AxNetDevice;
-#[cfg(feature = "net")]
+#[cfg(feature = "phy")]
 pub use self::structs::AxPhyDevice;
 
 /// A structure that contains all device drivers, organized by their category.
@@ -104,7 +104,7 @@ pub struct AllDevices {
     /// All network device drivers.
     #[cfg(feature = "net")]
     pub net: AxDeviceContainer<AxNetDevice>,
-    #[cfg(feature = "net")]
+    #[cfg(feature = "phy")]
     pub phy: AxDeviceContainer<AxPhyDevice>,
     /// All block device drivers.
     #[cfg(feature = "block")]
@@ -148,6 +148,7 @@ impl AllDevices {
         match dev {
             #[cfg(feature = "net")]
             AxDeviceEnum::Net(dev) => self.net.push(dev),
+            #[cfg(feature = "phy")]
             AxDeviceEnum::Phy(dev) =>self.phy.push(dev),
             #[cfg(feature = "block")]
             AxDeviceEnum::Block(dev) => self.block.push(dev),
@@ -167,10 +168,18 @@ pub fn init_drivers() -> AllDevices {
 
     #[cfg(feature = "net")]
     {
-        debug!("number of NICs: {}", all_devs.net.len());
+        info!("number of NICs: {}", all_devs.net.len());
         for (i, dev) in all_devs.net.iter().enumerate() {
             assert_eq!(dev.device_type(), DeviceType::Net);
-            debug!("  NIC {}: {:?}", i, dev.device_name());
+            info!("  NIC {}: {:?}", i, dev.device_name());
+        }
+    }
+    #[cfg(feature = "phy")]
+    {
+        info!("number of Phys: {}", all_devs.phy.len());
+        for (i, dev) in all_devs.phy.iter().enumerate() {
+            assert_eq!(dev.device_type(), DeviceType::Phy);
+            info!("  PHY {}: {:?}", i, dev.device_name());
         }
     }
     #[cfg(feature = "block")]

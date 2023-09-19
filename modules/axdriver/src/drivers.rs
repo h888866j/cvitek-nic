@@ -81,6 +81,10 @@ cfg_if::cfg_if! {
                 return Some(AxDeviceEnum::from_net(cvitek_nic));
             }
         }
+    }
+}
+cfg_if::cfg_if! {
+    if #[cfg(phy_dev = "cvitekphy")] {
         use super::CvitekPhyTraitsImpl;
         pub struct CvitekPhyDriver;
         register_phy_driver!(CvitekPhyDriver, driver_net::cvitekphy::CvitekPhy<CvitekPhyTraitsImpl>);
