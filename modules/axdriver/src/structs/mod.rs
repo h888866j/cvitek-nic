@@ -12,6 +12,7 @@ pub enum AxDeviceEnum {
     /// Network card device.
     #[cfg(feature = "net")]
     Net(AxNetDevice),
+    #[cfg(feature = "net")]
     Phy(AxPhyDevice),
     /// Block storage device.
     #[cfg(feature = "block")]

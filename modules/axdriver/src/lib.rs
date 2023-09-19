@@ -95,6 +95,7 @@ pub use self::structs::AxBlockDevice;
 pub use self::structs::AxDisplayDevice;
 #[cfg(feature = "net")]
 pub use self::structs::AxNetDevice;
+#[cfg(feature = "net")]
 pub use self::structs::AxPhyDevice;
 
 /// A structure that contains all device drivers, organized by their category.
@@ -103,6 +104,7 @@ pub struct AllDevices {
     /// All network device drivers.
     #[cfg(feature = "net")]
     pub net: AxDeviceContainer<AxNetDevice>,
+    #[cfg(feature = "net")]
     pub phy: AxDeviceContainer<AxPhyDevice>,
     /// All block device drivers.
     #[cfg(feature = "block")]

@@ -44,7 +44,9 @@ use axdriver::{prelude::*, AxDeviceContainer};
 pub fn init_network(mut net_devs: AxDeviceContainer<AxNetDevice>,mut phy_devs: AxDeviceContainer<AxPhyDevice>) {
     info!("Initialize network subsystem...");
 
-    let dev = net_devs.take_one().expect("No NIC device found!");
-    info!("  use NIC 0: {:?}", dev.device_name());
-    net_impl::init(dev);
+    let net_dev = net_devs.take_one().expect("No NIC device found!");
+    let phy_dev= phy_devs.take_one().expect("No Phy device found!");
+    info!("  use NIC 0: {:?}", net_dev.device_name());
+    info!("  use PHY 0: {:?}", phy_dev.device_name());
+    net_impl::init(net_dev);
 }

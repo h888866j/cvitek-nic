@@ -1,4 +1,4 @@
-const NET_DEV_FEATURES: &[&str] = &["cviteknic"];
+const NET_DEV_FEATURES: &[&str] = &["cviteknic","cvitekphy"];
 const BLOCK_DEV_FEATURES: &[&str] = &["ramdisk", "virtio-blk"];
 const DISPLAY_DEV_FEATURES: &[&str] = &["virtio-gpu"];
 

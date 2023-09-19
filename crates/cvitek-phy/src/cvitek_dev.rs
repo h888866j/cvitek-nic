@@ -3,6 +3,12 @@ pub struct CvitekPhyDevice<A: CvitekPhyTraits>
 {
     phantom: PhantomData<A>,
 }
+impl<A: CvitekPhyTraits> CvitekPhyDevice<A>
+{
+    pub fn new()->Self{
+        CvitekPhyDevice { phantom: PhantomData }
+    }
+}
 pub trait CvitekPhyTraits {
     fn phys_to_virt(pa: usize) -> usize {
         pa

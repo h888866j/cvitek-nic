@@ -5,13 +5,13 @@
 #![feature(const_slice_from_raw_parts_mut)]
 
 mod net_buf;
-#[cfg(feature = "cvitekphy")]
-pub mod cvitekphy;
 
 use core::ptr::NonNull;
 
 #[cfg(feature = "cviteknic")]
 pub mod cviteknic;
+#[cfg(feature = "cvitekphy")]
+pub mod cvitekphy;
 
 #[macro_use]
 extern crate log;
