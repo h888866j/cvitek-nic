@@ -168,18 +168,18 @@ pub fn init_drivers() -> AllDevices {
 
     #[cfg(feature = "net")]
     {
-        info!("number of NICs: {}", all_devs.net.len());
+        debug!("number of NICs: {}", all_devs.net.len());
         for (i, dev) in all_devs.net.iter().enumerate() {
             assert_eq!(dev.device_type(), DeviceType::Net);
-            info!("  NIC {}: {:?}", i, dev.device_name());
+            debug!("  NIC {}: {:?}", i, dev.device_name());
         }
     }
     #[cfg(feature = "phy")]
     {
-        info!("number of Phys: {}", all_devs.phy.len());
+        debug!("number of Phys: {}", all_devs.phy.len());
         for (i, dev) in all_devs.phy.iter().enumerate() {
             assert_eq!(dev.device_type(), DeviceType::Phy);
-            info!("  PHY {}: {:?}", i, dev.device_name());
+            debug!("  PHY {}: {:?}", i, dev.device_name());
         }
     }
     #[cfg(feature = "block")]
