@@ -23,6 +23,7 @@ mmio-regions = [
     ["0x4000_0000", "0x4000_0000"],  # PCI memory ranges (ranges 1: 32-bit MMIO space)
     ["0x0300_0000", "0x6_0000"],
     ["0x0451_0000", "0x1_0000"],
+    ["0x0502_0000", "0x1_0000"],
 ]
 # VirtIO MMIO regions with format (`base_paddr`, `size`).
 virtio-mmio-regions = [
