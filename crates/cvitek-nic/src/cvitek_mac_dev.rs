@@ -36,12 +36,14 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
     }
 
     pub fn init(&mut self) {
+
+
         // alloc rx_ring and tx_ring
         self.rx_rings.init_dma_desc_rings();
         self.tx_rings.init_dma_desc_rings();
         info!("init tx and rxring\n");
     }
-    pub fn mac_address(&self) -> [u8; 6]
+    pub fn read_mac_address(&self) -> [u8; 6]
     {
         let mut ret:[u8;6]=[0; 6];
         unsafe{
@@ -162,33 +164,7 @@ impl<A:CvitekNicTraits> RxRing<A> {
 
     pub fn init_dma_desc_rings(&mut self) {
         info!("rx set_idx_addr_owner");
-        // TODO fix the address
-        /*let pa = 0x89000000 as usize + 0x6000;
-        let va = A::phys_to_virt(pa);
-        for i in 0..512 {
-            let new_pa = pa + i * 0x1000;
-            let new_va = va + i * 0x1000;
-            self.set_idx_addr_owner(i, new_pa);
-            self.skbuf.push(new_va);
-        }
-
-        let rd_addr = self.rd.phy_addr as usize;
-
-        let iobase = A::phys_to_virt(0x30000000);
-        unsafe {
-            write_volatile(
-                (iobase + DMA_CHAN_RX_BASE_ADDR_HI) as *mut u32,
-                (rd_addr >> 32) as u32,
-            );
-            write_volatile(
-                (iobase + DMA_CHAN_RX_BASE_ADDR) as *mut u32,
-                (rd_addr & 0xFFFFFFFF) as u32,
-            );
-            write_volatile(
-                (iobase + DMA_CHAN_RX_END_ADDR) as *mut u32,
-                rd_addr as u32 + (512 * core::mem::size_of::<RxDes>()) as u32,
-            );
-        }*/
+        
     }
 
     /// Release the next RDes to the DMA engine
@@ -265,48 +241,6 @@ impl<A: CvitekNicTraits> TxRing<A> {
     }
     pub fn init_dma_desc_rings(&mut self) {
         info!("tx set_idx_addr_owner");
-        let iobase = A::phys_to_virt(0x30000000);
-        // TODO fix the address
-        /*for i in 0..512 {
-            let paddr = 0x89000000 + 0x3000 as usize + i * core::mem::size_of::<TxDes>();
-            let vaddr = A::phys_to_virt(paddr);
-            let mut td = vaddr as *mut TxDes;
-            unsafe {
-                (*td).tdes0 = 0 as u32;
-                (*td).tdes1 = 0 as u32;
-                (*td).tdes2 = 0 as u32;
-                (*td).tdes3 = 0 as u32;
-            }
-
-            let mut td = TxDes {
-                tdes0: 0,
-                tdes1: 0,
-                tdes2: 0,
-                tdes3: 0,
-            };
-            self.td.write_volatile(i, &td);
-
-            // unsafe {
-            //     core::arch::asm!("dsb sy");
-            //     core::arch::asm!("dsb st");
-            // }
-        }
-        unsafe {
-            let paddr = 0x89000000 + 0x3000 as usize;
-            write_volatile(
-                (iobase + DMA_CHAN_TX_BASE_ADDR_HI) as *mut u32,
-                ((paddr >> 32) as u32) & 0xffffffff,
-            );
-            write_volatile(
-                (iobase + DMA_CHAN_TX_BASE_ADDR) as *mut u32,
-                (paddr & 0xFFFFFFFF) as u32,
-            );
-            write_volatile((iobase + DMA_CHAN_TX_RING_LEN) as *mut u32, 511);
-            write_volatile((iobase + DMA_CHAN_TX_END_ADDR) as *mut u32, paddr as u32);
-        }
-        unsafe {
-            core::arch::asm!("dsb sy");
-        }*/
     }
 
     pub fn set_idx_addr_owner(
