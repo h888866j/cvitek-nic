@@ -9,8 +9,8 @@ use core::time::Duration;
 use core::{mem, ptr};
 
 use super::cvitek_defs::*;
-
 pub struct CvitekNicDevice<A: CvitekNicTraits> {
+    reg_base_addr:usize,
     iobase_pa: usize,
     iobase_va: usize,
     rx_rings: RxRing<A>,
@@ -26,6 +26,7 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
         let mut nic = CvitekNicDevice::<A> {
             iobase_pa,
             iobase_va,
+            reg_base_addr:GMAC0_REG_BASE_ADDR,
             rx_rings: rx_ring,
             tx_rings: tx_ring,
             phantom: PhantomData,
@@ -40,6 +41,22 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
         self.tx_rings.init_dma_desc_rings();
         info!("init tx and rxring\n");
     }
+    pub fn mac_address(&self) -> [u8; 6]
+    {
+        let mut ret:[u8;6]=[0; 6];
+        unsafe{
+            let hi=read_volatile((self.reg_base_addr + GMAC_REG_MACADDR0HI) as *mut u32);
+            let lo=read_volatile((self.reg_base_addr + GMAC_REG_MACADDR0LO) as *mut u32);
+            ret[0]=(lo & 0xff) as u8;
+            ret[1]=((lo>>8)& 0xff) as u8;
+            ret[2]=((lo>>16)& 0xff) as u8;
+            ret[3]=((lo>>24)& 0xff) as u8;
+            ret[4]=(hi& 0xff) as u8;
+            ret[5]=((hi>>8)& 0xff) as u8;
+        }
+        ret
+    }
+
 
     pub fn get_tx_idx(&self) -> usize {
         let idx = self.tx_rings.idx;

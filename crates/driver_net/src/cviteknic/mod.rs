@@ -128,7 +128,7 @@ impl <A:CvitekNicTraits> BaseDriverOps for CvitekNic<A> {
 impl<A:CvitekNicTraits> NetDriverOps for CvitekNic<A> {
     fn mac_address(&self) -> crate::EthernetAddress {
         // todo
-        crate::EthernetAddress([0xaa, 0xbb, 0xcc, 0xdd, 0x05, 0x06])
+        crate::EthernetAddress(self.device.mac_address())
     }
 
     fn tx_queue_size(&self) -> usize {

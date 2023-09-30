@@ -3,12 +3,16 @@ use super::cvitek_defs::*;
 use core::ptr::{write_volatile,read_volatile};
 pub struct CvitekPhyDevice<A: CvitekPhyTraits>
 {
+    base_addr:usize,
     phantom: PhantomData<A>,
 }
 impl<A: CvitekPhyTraits> CvitekPhyDevice<A>
 {
-    pub fn new()->Self{
-        CvitekPhyDevice { phantom: PhantomData }
+    pub fn new(base_addr:usize)->Self{
+        CvitekPhyDevice { 
+            base_addr:base_addr,
+            phantom: PhantomData 
+        }
     }
     pub fn configure(&self)
     {
@@ -222,6 +226,12 @@ impl<A: CvitekPhyTraits> CvitekPhyDevice<A>
         }
 
         Err(-1)
+    }
+    pub fn start(&self){
+
+    }
+    pub fn stop(&self){
+        
     }
 }
 pub trait CvitekPhyTraits {

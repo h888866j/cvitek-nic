@@ -6,11 +6,11 @@ extern crate alloc;
 extern crate log;
 
 mod cvitek_defs;
-mod cvitek_main;
+mod cvitek_mac_dev;
 
-pub use cvitek_main::CvitekNicDevice;
-pub use cvitek_main::CvitekNicTraits;
-pub use cvitek_main::Packet;
+pub use cvitek_mac_dev::CvitekNicDevice;
+pub use cvitek_mac_dev::CvitekNicTraits;
+pub use cvitek_mac_dev::Packet;
 // pub use cvitek_main::Dma;
 
 pub struct RxBuffer {

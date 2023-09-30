@@ -3,9 +3,9 @@ pub use super::CvitekPhyDevice;
 use driver_common::BaseDriverOps;
 use core::marker::PhantomData;
 use crate::PhyDriverOps;
-mod consts;
-use consts::*;
 
+pub (crate) const GMAC0_REG_BASE_ADDR: usize = 0x04510000;
+pub (crate) const GMAC1_REG_BASE_ADDR: usize = 0x04520000;
 pub struct CvitekPhy<A>
 where
     A: CvitekPhyTraits,
@@ -23,7 +23,7 @@ where
     A: CvitekPhyTraits,
 {
     pub fn init(traits_impl: A) -> Self {
-        let device = CvitekPhyDevice::new();
+        let device = CvitekPhyDevice::new(GMAC0_REG_BASE_ADDR);
         CvitekPhy { 
             device: device,
             phantom: PhantomData
@@ -44,13 +44,15 @@ impl <A:CvitekPhyTraits> BaseDriverOps for CvitekPhy<A> {
 
 impl <A:CvitekPhyTraits> PhyDriverOps for CvitekPhy<A> {
     fn configure(&self) {
+        info!("CvitekPhy configure");
         self.device.configure();
     }
     fn start(&self) {
         info!("CvitekPhy start");
-
+        self.device.start();
     }
     fn stop(&self) {
         info!("CvitekPhy stop");
+        self.device.stop();
     }
 }

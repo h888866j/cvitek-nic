@@ -85,23 +85,24 @@ pub const TDES3_LAST_DESCRIPTOR:u32 = 1 << 28;
 
 /// cvitek mac definations
 
-pub (crate) const GMAC_REG_BASE_ADDR: usize = 0x04510000;
-pub (crate) const GMAC_REG_CONF:usize = GMAC_REG_BASE_ADDR+0x0;
-pub (crate) const GMAC_REG_FRAMEFILT:usize = GMAC_REG_BASE_ADDR+0x04;
-pub (crate) const GMAC_REG_HASHTABLEHIGH:usize = GMAC_REG_BASE_ADDR+0x08;
-pub (crate) const GMAC_REG_HASHTABLELOW:usize = GMAC_REG_BASE_ADDR+0x0c;
-pub (crate) const GMAC_REG_MIIADDR:usize = GMAC_REG_BASE_ADDR+0x10;
-pub (crate) const GMAC_REG_MIIDATA:usize = GMAC_REG_BASE_ADDR+0x14;
-pub (crate) const GMAC_REG_FLOWCONTROL:usize = GMAC_REG_BASE_ADDR+0x18;
-pub (crate) const GMAC_REG_VLANTAG:usize = GMAC_REG_BASE_ADDR+0x1c;
-pub (crate) const GMAC_REG_VERSION:usize = GMAC_REG_BASE_ADDR+0x20;
-pub (crate) const GMAC_REG_INTREG:usize = GMAC_REG_BASE_ADDR+0x38;
-pub (crate) const GMAC_REG_INTMASK:usize = GMAC_REG_BASE_ADDR+0x3c;
-pub (crate) const GMAC_REG_MACADDR0HI:usize = GMAC_REG_BASE_ADDR+0x40;
-pub (crate) const GMAC_REG_MACADDR0LO:usize = GMAC_REG_BASE_ADDR+0x44;
+pub (crate) const GMAC0_REG_BASE_ADDR: usize = 0x04510000;
+pub (crate) const GMAC1_REG_BASE_ADDR: usize = 0x04520000;
+pub (crate) const GMAC_REG_CONF:usize = 0x0;
+pub (crate) const GMAC_REG_FRAMEFILT:usize = 0x04;
+pub (crate) const GMAC_REG_HASHTABLEHIGH:usize = 0x08;
+pub (crate) const GMAC_REG_HASHTABLELOW:usize = 0x0c;
+pub (crate) const GMAC_REG_MIIADDR:usize = 0x10;
+pub (crate) const GMAC_REG_MIIDATA:usize = 0x14;
+pub (crate) const GMAC_REG_FLOWCONTROL:usize = 0x18;
+pub (crate) const GMAC_REG_VLANTAG:usize = 0x1c;
+pub (crate) const GMAC_REG_VERSION:usize = 0x20;
+pub (crate) const GMAC_REG_INTREG:usize = 0x38;
+pub (crate) const GMAC_REG_INTMASK:usize = 0x3c;
+pub (crate) const GMAC_REG_MACADDR0HI:usize = 0x40;
+pub (crate) const GMAC_REG_MACADDR0LO:usize = 0x44;
 
 
-pub (crate) const GMAC_DMA_REG_BASE_ADDR: usize = GMAC_REG_BASE_ADDR + 0x1000;
+pub (crate) const GMAC_DMA_REG_BASE_ADDR: usize = 0x1000;
 pub (crate) const GMAC_DMA_REG_BUS_MODE: usize = GMAC_DMA_REG_BASE_ADDR + 0x0;
 pub (crate) const GMAC_DMA_REG_TXPOLLDEMAND: usize = GMAC_DMA_REG_BASE_ADDR + 0x04;
 pub (crate) const GMAC_DMA_REG_RXPOLLDEMAND: usize = GMAC_DMA_REG_BASE_ADDR + 0x08;
