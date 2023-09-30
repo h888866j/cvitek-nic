@@ -10,7 +10,6 @@ use core::{mem, ptr};
 
 use super::cvitek_defs::*;
 pub struct CvitekNicDevice<A: CvitekNicTraits> {
-    reg_base_addr:usize,
     iobase_pa: usize,
     iobase_va: usize,
     rx_rings: RxRing<A>,
@@ -26,7 +25,6 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
         let mut nic = CvitekNicDevice::<A> {
             iobase_pa,
             iobase_va,
-            reg_base_addr:GMAC0_REG_BASE_ADDR,
             rx_rings: rx_ring,
             tx_rings: tx_ring,
             phantom: PhantomData,
@@ -36,19 +34,38 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
     }
 
     pub fn init(&mut self) {
-
-
+        // reset mac
+        let start_time:usize =A::current_time();
+        unsafe{
+            let mut val=read_volatile((self.iobase_va+GMAC_DMA_REG_BUS_MODE) as *mut u32);
+            write_volatile((self.iobase_va+GMAC_DMA_REG_BUS_MODE) as *mut u32, val | DMAMAC_SRST);
+            val=read_volatile((self.iobase_va+GMAC_DMA_REG_BUS_MODE) as *mut u32);
+            while (val &DMAMAC_SRST)!=0{
+                val=read_volatile((self.iobase_va+GMAC_DMA_REG_BUS_MODE) as *mut u32);
+                if (A::current_time()-start_time)>=CONFIG_MDIO_TIMEOUT {
+                    info!("DMA reset timeout\n");
+                }
+                A::mdelay(100);
+            }
+        }
         // alloc rx_ring and tx_ring
         self.rx_rings.init_dma_desc_rings();
         self.tx_rings.init_dma_desc_rings();
+        // set mac regs
+        unsafe{
+            write_volatile((self.iobase_va+GMAC_DMA_REG_OPMODE) as *mut u32, 0x2202906);
+            write_volatile((self.iobase_va+GMAC_DMA_REG_BUS_MODE) as *mut u32, 0x3900800);
+            write_volatile((self.iobase_va+GMAC_REG_CONF) as *mut u32, 0x41cc00);
+            write_volatile((self.iobase_va+GMAC_DMA_REG_INTENABLE) as *mut u32, 0x10040);
+        }
         info!("init tx and rxring\n");
     }
     pub fn read_mac_address(&self) -> [u8; 6]
     {
         let mut ret:[u8;6]=[0; 6];
         unsafe{
-            let hi=read_volatile((self.reg_base_addr + GMAC_REG_MACADDR0HI) as *mut u32);
-            let lo=read_volatile((self.reg_base_addr + GMAC_REG_MACADDR0LO) as *mut u32);
+            let hi=read_volatile((self.iobase_va + GMAC_REG_MACADDR0HI) as *mut u32);
+            let lo=read_volatile((self.iobase_va + GMAC_REG_MACADDR0LO) as *mut u32);
             ret[0]=(lo & 0xff) as u8;
             ret[1]=((lo>>8)& 0xff) as u8;
             ret[2]=((lo>>16)& 0xff) as u8;
@@ -88,7 +105,7 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
 
         // good frame
         // clean_idx = idx;
-        let frame_len = rdes3 & EMAC_RDES3_PL;
+        let frame_len = rdes3 ;
 
         // get data from skb
         let skb_va = rx_rings.skbuf[idx] as *mut u8;
@@ -181,7 +198,6 @@ impl<A:CvitekNicTraits> RxRing<A> {
         rd.rdes1 = ((skb_phys_addr >> 32) & 0xFF) as u32;
 
         // dwmac_set_rx_owner
-        rd.rdes3 |= RDES3_OWN | RDES3_BUFFER1_VALID_ADDR;
         // rd.rdes3 |= RDES3_INT_ON_COMPLETION_EN;
 
         self.rd.write_volatile(idx, &rd);
@@ -195,21 +211,6 @@ impl<A:CvitekNicTraits> RxRing<A> {
         
         let rd_addr = self.rd.phy_addr as usize;
 
-        unsafe {
-            write_volatile(
-                (iobase + DMA_CHAN_RX_BASE_ADDR_HI) as *mut u32,
-                (rd_addr >> 32) as u32,
-            );
-            write_volatile(
-                (iobase + DMA_CHAN_RX_BASE_ADDR) as *mut u32,
-                (rd_addr & 0xFFFFFFFF) as u32,
-            );
-
-            write_volatile(
-                (iobase + DMA_CHAN_RX_END_ADDR) as *mut u32,
-                rd_addr as u32 + (511 * core::mem::size_of::<RxDes>()) as u32,
-            );
-        }
     }
 }
 
@@ -257,8 +258,6 @@ impl<A: CvitekNicTraits> TxRing<A> {
         self.skbuf.push(skb_va);
         let td = self.td.read_volatile(idx).unwrap();
 
-        assert!(td.tdes3 & EMAC_DES3_OWN == 0);
-
         let mut td = TxDes {
             tdes0: 0,
             tdes1: 0,
@@ -269,12 +268,6 @@ impl<A: CvitekNicTraits> TxRing<A> {
         td.tdes0 = skb_phys_addr as u32; // Buffer 1
         td.tdes1 = ((skb_phys_addr >> 32) & 0xff) as u32; // Not used
 
-        td.tdes2 = (len as u32) & EMAC_TDES2_B1L;
-
-        td.tdes3 |= EMAC_DES3_FD; // FD: Contains first buffer of packet
-        td.tdes3 |= EMAC_DES3_LD; // LD: Contains last buffer of packet
-        td.tdes3 |= EMAC_DES3_OWN; // Give the DMA engine ownership
-        td.tdes3 |= (len as u32) & EMAC_TDES3_PL;
 
         self.td.write_volatile(idx, &td);
     }
@@ -283,12 +276,6 @@ impl<A: CvitekNicTraits> TxRing<A> {
         let td_addr = self.td.phy_addr as usize;
         let idx = self.idx;
         info!("tx set_tail_ptr idx:{:?}", idx);
-        unsafe {
-            write_volatile(
-                (iobase + DMA_CHAN_TX_END_ADDR) as *mut u32,
-                td_addr as u32 + (idx * core::mem::size_of::<TxDes>()) as u32,
-            );
-        }
     }
 }
 
@@ -373,4 +360,6 @@ pub trait CvitekNicTraits {
     fn dma_free_pages(vaddr: usize, pages: usize);
 
     fn mdelay(m_times: usize);
+
+    fn current_time() -> usize;
 }

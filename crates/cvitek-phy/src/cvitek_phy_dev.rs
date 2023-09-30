@@ -9,8 +9,11 @@ pub struct CvitekPhyDevice<A: CvitekPhyTraits>
 impl<A: CvitekPhyTraits> CvitekPhyDevice<A>
 {
     pub fn new(base_addr:usize)->Self{
+        let phymask:u32= 0xffffffff;
+        let phy_if_mode= 0;
+
         CvitekPhyDevice { 
-            base_addr:base_addr,
+            base_addr:A::phys_to_virt(base_addr),
             phantom: PhantomData 
         }
     }
@@ -184,20 +187,20 @@ impl<A: CvitekPhyTraits> CvitekPhyDevice<A>
             write_volatile(0x03009804 as *mut u32, 0x0000);
         }
     }
-    pub fn phy_read(phy_addr:u8,reg_addr:u8,data:*mut u16) -> Result<i32,i32>{
+    pub fn phy_read(&self,phy_addr:u8,reg_addr:u8,data:*mut u16) -> Result<i32,i32>{
         let mut miiaddr=(( phy_addr as u32) << MIIADDRSHIFT) & MIIADDRMASK;
         miiaddr |= ((reg_addr as u32)<<MIIREGSHIFT) & MIIREGMASK;
         miiaddr |= MII_CLKRANGE_150_250M;
         miiaddr |= MII_BUSY;
         unsafe{
-            write_volatile(GMAC_REG_MIIADDR as *mut u32, miiaddr);
+            write_volatile((self.base_addr+GMAC_REG_MIIADDR) as *mut u32, miiaddr);
         }
         let start_time:usize =A::current_time();
         while (A::current_time()-start_time) < CONFIG_MDIO_TIMEOUT  {
-            let mut val= unsafe{read_volatile(GMAC_REG_MIIADDR as *mut u32)};
+            let mut val= unsafe{read_volatile((self.base_addr+GMAC_REG_MIIADDR) as *mut u32)};
             if (val & MII_BUSY)==0{
                 unsafe{
-                    val=read_volatile(GMAC_REG_MIIDATA as *mut u32);
+                    val=read_volatile((self.base_addr+GMAC_REG_MIIDATA) as *mut u32);
                     *data= val as u16;
                 }
                 return Ok(0);
@@ -206,19 +209,19 @@ impl<A: CvitekPhyTraits> CvitekPhyDevice<A>
         }
         Err(-1)
     }
-    pub fn phy_write(phy_addr:u8,reg_addr:u8,data:u16) -> Result<i32,i32>{
+    pub fn phy_write(&self,phy_addr:u8,reg_addr:u8,data:u16) -> Result<i32,i32>{
         let mut miiaddr=(( phy_addr as u32) << MIIADDRSHIFT) & MIIADDRMASK;
         miiaddr |= ((reg_addr as u32)<<MIIREGSHIFT) & MIIREGMASK | MII_WRITE;
         miiaddr |= MII_CLKRANGE_150_250M;
         miiaddr |= MII_BUSY;
 
         unsafe{
-            write_volatile(GMAC_REG_MIIDATA as *mut u32, data as u32);
-            write_volatile(GMAC_REG_MIIADDR as *mut u32, miiaddr);
+            write_volatile((self.base_addr+GMAC_REG_MIIDATA) as *mut u32, data as u32);
+            write_volatile((self.base_addr+GMAC_REG_MIIADDR) as *mut u32, miiaddr);
         }
         let start_time:usize =A::current_time();
         while (A::current_time()-start_time) < CONFIG_MDIO_TIMEOUT  {
-            let mut val= unsafe{read_volatile(GMAC_REG_MIIADDR as *mut u32)};
+            let mut val= unsafe{read_volatile((self.base_addr+GMAC_REG_MIIADDR) as *mut u32)};
             if (val & MII_BUSY)==0{
                 return Ok(0);
             }
@@ -227,11 +230,16 @@ impl<A: CvitekPhyTraits> CvitekPhyDevice<A>
 
         Err(-1)
     }
+    /*in alios, the start and update link only read the phy regs,so I do nothing*/
     pub fn start(&self){
 
     }
     pub fn stop(&self){
         
+    }
+    pub fn reset(&self){
+        let timeout=600;
+
     }
 }
 pub trait CvitekPhyTraits {

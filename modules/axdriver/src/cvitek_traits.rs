@@ -36,6 +36,9 @@ impl CvitekNicTraits for CvitekNicTraitsImpl {
     {
         busy_wait(Duration::from_millis(_m_times.try_into().unwrap()));
     }
+    fn current_time() -> usize {
+        current_time().as_millis() as usize
+    }
 }
 
 use driver_net::cvitekphy::CvitekPhyTraits;

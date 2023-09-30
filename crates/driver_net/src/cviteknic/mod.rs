@@ -30,12 +30,14 @@ where
     phantom: PhantomData<A>,
 }
 
+pub (crate) const GMAC0_REG_BASE_ADDR: usize = 0x04510000;
+
 impl <A> CvitekNic<A> 
 where
     A: CvitekNicTraits,
 {
     pub fn init(traits_impl: A) -> Self {
-        let device = CvitekNicDevice::new(0x04510000);
+        let device = CvitekNicDevice::new(GMAC0_REG_BASE_ADDR);
         Self {
             device,
             phantom: PhantomData,
