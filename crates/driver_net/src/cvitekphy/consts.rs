@@ -1,4 +1,0 @@
-pub (crate) const EPHY_EFUSE_VALID_BIT_BASE:u32 = 0x03050120;
-pub (crate) const EPHY_EFUSE_TXITUNE_FLAG: u32 = 0x00000200;
-pub (crate) const EPHY_EFUSE_EXECHORC_FLAG: u32 = 0x00000100;
-pub (crate) const EPHY_EFUSE_TXRXTERM_FLAG: u32 = 0x00000800;

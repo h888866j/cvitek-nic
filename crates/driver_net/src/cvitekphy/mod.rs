@@ -5,7 +5,7 @@ use core::marker::PhantomData;
 use crate::PhyDriverOps;
 mod consts;
 use consts::*;
-use core::ptr::{write_volatile,read_volatile};
+
 pub struct CvitekPhy<A>
 where
     A: CvitekPhyTraits,
@@ -44,173 +44,7 @@ impl <A:CvitekPhyTraits> BaseDriverOps for CvitekPhy<A> {
 
 impl <A:CvitekPhyTraits> PhyDriverOps for CvitekPhy<A> {
     fn configure(&self) {
-        let mut val_base:u32=0;
-        let mut val:u32=0;
-        let mut tmp_val:u32=0;
-        info!("CvitekPhy configure");
-        unsafe{ write_volatile(0x03009804 as *mut u32, 0x0001) };
-        //MII-page5
-        unsafe{ write_volatile(0x0300907c as *mut u32, 0x0500) };
-        unsafe{ write_volatile(0x03009040 as *mut u32, 0x0c00) };
-        unsafe{ write_volatile(0x03009040 as *mut u32, 0x0c7e) };
-        unsafe{ write_volatile(0x03009800 as *mut u32, 0x0906) };
-        //MII-page5
-        unsafe{ write_volatile(0x0300907c as *mut u32, 0x0500) };
-        val_base= unsafe { read_volatile( EPHY_EFUSE_VALID_BIT_BASE as *mut u32 ) };
-        val = val_base & EPHY_EFUSE_TXITUNE_FLAG;
-        if val == EPHY_EFUSE_TXITUNE_FLAG
-        {
-            tmp_val=unsafe{read_volatile(0x03051024 as *mut u32)};
-            val= ( (tmp_val >> 24) & 0xFF ) | ( ((tmp_val >> 16)& 0xFF) << 8 );
-            clrsetbits(0x03009064, 0xFFFF, val);
-        }
-        else {
-            unsafe{write_volatile(0x03009064 as *mut u32, 0x5a5a);}
-        }
-        val_base= unsafe { read_volatile( EPHY_EFUSE_VALID_BIT_BASE as *mut u32 ) };
-        val = val_base & EPHY_EFUSE_EXECHORC_FLAG;
-        if val == EPHY_EFUSE_EXECHORC_FLAG
-        {
-            tmp_val = unsafe{ read_volatile(0x03051024 as *mut u32)};
-            val = (( tmp_val >> 8 ) & 0xFF)<<8;
-            clrsetbits(0x03009054, 0xFF00, val);
-        }
-        else {
-            unsafe{write_volatile(0x03009054 as *mut u32, 0x0000);}
-        }
-        val_base= unsafe { read_volatile( EPHY_EFUSE_VALID_BIT_BASE as *mut u32 ) };
-        val = val_base & EPHY_EFUSE_TXRXTERM_FLAG;
-        if val == EPHY_EFUSE_TXRXTERM_FLAG
-        {
-            tmp_val = unsafe{ read_volatile(0x03051020 as *mut u32)};
-            val = (((tmp_val>>28) & 0xF) << 4) | ( ((tmp_val>>24) & 0xF )<<8 )  ;
-            clrsetbits(0x03009058, 0xFF0, val);
-        }
-        else {
-            unsafe{write_volatile(0x03009058 as *mut u32, 0x0bb0);}
-        }
-        unsafe{
-            write_volatile(0x0300905c as *mut u32, 0x0c10);
-            write_volatile(0x03009068 as *mut u32, 0x0003);
-            write_volatile(0x03009054 as *mut u32, 0x0000);
-            //MII-page16
-            write_volatile(0x0300907c as *mut u32, 0x1000);
-            write_volatile(0x03009068 as *mut u32, 0x1000);
-            write_volatile(0x0300906c as *mut u32, 0x3020);
-            write_volatile(0x03009070 as *mut u32, 0x5040);
-            write_volatile(0x03009074 as *mut u32, 0x7060);
-            write_volatile(0x03009058 as *mut u32, 0x1708);
-            write_volatile(0x0300905c as *mut u32, 0x3827);
-            write_volatile(0x03009060 as *mut u32, 0x5748);
-            write_volatile(0x03009064 as *mut u32, 0x7867);
-            //MII-page17
-            write_volatile(0x0300907c as *mut u32, 0x1100);
-            write_volatile(0x03009040 as *mut u32, 0x9080);
-            write_volatile(0x03009044 as *mut u32, 0xb0a0);
-            write_volatile(0x03009048 as *mut u32, 0xd0c0);
-            write_volatile(0x0300904c as *mut u32, 0xf0e0);
-            write_volatile(0x03009050 as *mut u32, 0x9788);
-            write_volatile(0x03009054 as *mut u32, 0xb8a7);
-            write_volatile(0x03009058 as *mut u32, 0xd7c8);
-            write_volatile(0x0300905c as *mut u32, 0xf7c8);
-            //MII-page5
-            write_volatile(0x0300907c as *mut u32, 0x0500);
-            val= read_volatile(0x03009040 as *mut u32) | 0x0001;
-            write_volatile(0x03009040 as *mut u32, val);
-            //MII-page10
-            write_volatile(0x0300907c as *mut u32, 0x0a00);
-            write_volatile(0x03009040 as *mut u32, 0x2000);
-            write_volatile(0x03009044 as *mut u32, 0x3832);
-            write_volatile(0x03009048 as *mut u32, 0x3132);
-            write_volatile(0x0300904c as *mut u32, 0x2d2f);
-            write_volatile(0x03009050 as *mut u32, 0x2c2d);
-            write_volatile(0x03009054 as *mut u32, 0x1b2b);
-            write_volatile(0x03009058 as *mut u32, 0x94a0);
-            write_volatile(0x0300905c as *mut u32, 0x8990);
-            write_volatile(0x03009060 as *mut u32, 0x8788);
-            write_volatile(0x03009064 as *mut u32, 0x8485);
-            write_volatile(0x03009068 as *mut u32, 0x8283);
-            write_volatile(0x0300906c as *mut u32, 0x8182);
-            write_volatile(0x03009070 as *mut u32, 0x0081);
-            //MII-page11
-            write_volatile(0x0300907c as *mut u32, 0x0b00);
-            write_volatile(0x03009040 as *mut u32, 0x5252);
-            write_volatile(0x03009044 as *mut u32, 0x5252);
-            write_volatile(0x03009048 as *mut u32, 0x4B52);
-            write_volatile(0x0300904c as *mut u32, 0x3D47);
-            write_volatile(0x03009050 as *mut u32, 0xAA99);
-            write_volatile(0x03009054 as *mut u32, 0x989E);
-            write_volatile(0x03009058 as *mut u32, 0x9395);
-            write_volatile(0x0300905C as *mut u32, 0x9091);
-            write_volatile(0x03009060 as *mut u32, 0x8E8F);
-            write_volatile(0x03009064 as *mut u32, 0x8D8E);
-            write_volatile(0x03009068 as *mut u32, 0x8C8C);
-            write_volatile(0x0300906c as *mut u32, 0x8B8B);
-            write_volatile(0x03009070 as *mut u32, 0x008A);
-            //MII-page13
-            write_volatile(0x0300907c as *mut u32, 0x0d00);
-            write_volatile(0x03009040 as *mut u32, 0x1E0A);
-            write_volatile(0x03009044 as *mut u32, 0x3862);
-            write_volatile(0x03009048 as *mut u32, 0x1E62);
-            write_volatile(0x0300904c as *mut u32, 0x2A08);
-            write_volatile(0x03009050 as *mut u32, 0x244C);
-            write_volatile(0x03009054 as *mut u32, 0x1A44);
-            write_volatile(0x03009058 as *mut u32, 0x061C);
-            //MII-page14
-            write_volatile(0x0300907c as *mut u32, 0x0e00);
-            write_volatile(0x03009040 as *mut u32, 0x2D30);
-            write_volatile(0x03009044 as *mut u32, 0x3470);
-            write_volatile(0x03009048 as *mut u32, 0x0648);
-            write_volatile(0x0300904c as *mut u32, 0x261C);
-            write_volatile(0x03009050 as *mut u32, 0x3160);
-            write_volatile(0x03009054 as *mut u32, 0x2D5E);
-            //MII-page15
-            write_volatile(0x0300907c as *mut u32, 0x0f00);
-            write_volatile(0x03009040 as *mut u32, 0x2922);
-            write_volatile(0x03009044 as *mut u32, 0x366E);
-            write_volatile(0x03009048 as *mut u32, 0x0752);
-            write_volatile(0x0300904c as *mut u32, 0x2556);
-            write_volatile(0x03009050 as *mut u32, 0x2348);
-            write_volatile(0x03009054 as *mut u32, 0x0C30);
-            //MII-page16
-            write_volatile(0x0300907c as *mut u32, 0x1000);
-            write_volatile(0x03009040 as *mut u32, 0x1E08);
-            write_volatile(0x03009044 as *mut u32, 0x3868);
-            write_volatile(0x03009048 as *mut u32, 0x1462);
-            write_volatile(0x0300904c as *mut u32, 0x1A0E);
-            write_volatile(0x03009050 as *mut u32, 0x305E);
-            write_volatile(0x03009054 as *mut u32, 0x2F62);
-
-            write_volatile(0x030010E0 as *mut u32, 0x05);
-            write_volatile(0x030010E4 as *mut u32, 0x05);
-
-            write_volatile(0x050270b0 as *mut u32, 0x11111111);
-            write_volatile(0x050270b4 as *mut u32, 0x11111111);
-            //MII-page1
-            write_volatile(0x0300907c as *mut u32, 0x0100);
-            val= read_volatile(0x03009068 as *mut u32) & !0x0f00;
-            write_volatile(0x03009068 as *mut u32, val);
-            //MII-page0
-            write_volatile(0x0300907c as *mut u32, 0x0000);
-            write_volatile(0x03009008 as *mut u32, 0x0043);
-            write_volatile(0x0300900c as *mut u32, 0x5649);
-            //MII-page19
-            write_volatile(0x0300907c as *mut u32, 0x1300);
-            write_volatile(0x03009058 as *mut u32, 0x0012);
-            write_volatile(0x0300905c as *mut u32, 0x6848);
-            //MII-page18
-            write_volatile(0x0300907c as *mut u32, 0x1200);
-            write_volatile(0x03009048 as *mut u32, 0x0808);
-            write_volatile(0x0300904c as *mut u32, 0x0808);
-
-            write_volatile(0x03009050 as *mut u32, 0x32f8);
-            write_volatile(0x03009054 as *mut u32, 0xf8dc);
-            //MII-page0
-            write_volatile(0x0300907c as *mut u32, 0x0000);
-            write_volatile(0x03009800 as *mut u32, 0x090E);
-
-            write_volatile(0x03009804 as *mut u32, 0x0000);
-        }
+        self.device.configure();
     }
     fn start(&self) {
         info!("CvitekPhy start");
@@ -218,12 +52,5 @@ impl <A:CvitekPhyTraits> PhyDriverOps for CvitekPhy<A> {
     }
     fn stop(&self) {
         info!("CvitekPhy stop");
-    }
-}
-pub fn clrsetbits(addr: u32,clear:u32, set:u32){
-    unsafe{ 
-        let mut val:u32=read_volatile(addr as *mut u32);
-        val &= !clear;
-        write_volatile(addr as *mut u32, val); 
     }
 }

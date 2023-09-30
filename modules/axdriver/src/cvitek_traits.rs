@@ -1,6 +1,6 @@
 use axalloc::global_allocator;
 use axhal::mem::{phys_to_virt, virt_to_phys};
-use axhal::time::{busy_wait, Duration};
+use axhal::time::{busy_wait, Duration, current_time};
 
 
 use driver_net::cviteknic::CvitekNicTraits;
@@ -68,5 +68,8 @@ impl CvitekPhyTraits for CvitekPhyTraitsImpl {
     fn mdelay(_m_times:usize)
     {
         busy_wait(Duration::from_millis(_m_times.try_into().unwrap()));
+    }
+    fn current_time() -> usize {
+        current_time().as_millis() as usize
     }
 }
