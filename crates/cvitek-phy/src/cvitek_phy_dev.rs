@@ -11,11 +11,13 @@ impl<A: CvitekPhyTraits> CvitekPhyDevice<A>
     pub fn new(base_addr:usize)->Self{
         let phymask:u32= 0xffffffff;
         let phy_if_mode= 0;
-
-        CvitekPhyDevice { 
+        let mut phy= CvitekPhyDevice { 
             base_addr:A::phys_to_virt(base_addr),
             phantom: PhantomData 
-        }
+        };
+        phy.reset();
+        phy.configure();
+        phy
     }
     pub fn configure(&self)
     {

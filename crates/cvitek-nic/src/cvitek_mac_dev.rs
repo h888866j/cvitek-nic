@@ -91,10 +91,10 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
         let mut clean_idx = 0;
 
         let rd = rd_dma.read_volatile(idx).unwrap();
-        let rdes0 = rd.rdes0;
-        let rdes1 = rd.rdes1;
-        let rdes2 = rd.rdes2;
-        let rdes3 = rd.rdes3;
+        let rdes0 = rd.txrx_status;
+        let rdes1 = rd.dmamac_cntl;
+        let rdes2 = rd.dmamac_addr;
+        let rdes3 = rd.dmamac_cntl;
 
         status = rdes0 & (1 << 31);
 
@@ -105,7 +105,7 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
 
         // good frame
         // clean_idx = idx;
-        let frame_len = rdes3 ;
+        let frame_len = rdes1 ;
 
         // get data from skb
         let skb_va = rx_rings.skbuf[idx] as *mut u8;
@@ -138,39 +138,30 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
 
 #[derive(Copy, Clone, Debug)]
 #[repr(C, packed)]
-pub struct RxDes {
-    pub rdes0: u32,
-    pub rdes1: u32,
-    pub rdes2: u32,
-    pub rdes3: u32,
-}
-
-#[derive(Copy, Clone, Debug)]
-#[repr(C, packed)]
-pub struct TxDes {
-    pub tdes0: u32,
-    pub tdes1: u32,
-    pub tdes2: u32,
-    pub tdes3: u32,
+pub struct Des {
+    pub txrx_status: u32,
+    pub dmamac_cntl: u32,
+    pub dmamac_addr: u32,
+    pub dmamac_next: u32,
 }
 
 pub struct RxRing<A: CvitekNicTraits> {
     pub idx: usize,
     pub skbuf: Vec<usize>,
-    pub rd: Dma<RxDes>,
+    pub rd: Dma<Des>,
     phantom: PhantomData<A>,
 }
 
 impl<A:CvitekNicTraits> RxRing<A> {
     pub fn new() -> Self {
-        let count = 512;
-        let size = mem::size_of::<RxDes>() * count;
+        let count = CONFIG_RX_DESCR_NUM;
+        let size = mem::size_of::<Des>() * count;
         let pa = 0x89000000 as usize;
         let va = A::phys_to_virt(pa);
 
         info!("rx des  pa: {:#x?} end {:#x?}", pa, pa + size);
         let rd_dma = Dma::new(va as _, pa, count);
-        let skbuf = Vec::new();
+        let skbuf: Vec<usize> = Vec::new();
         Self {
             rd: rd_dma,
             phantom: PhantomData,
@@ -180,22 +171,22 @@ impl<A:CvitekNicTraits> RxRing<A> {
     }
 
     pub fn init_dma_desc_rings(&mut self) {
-        info!("rx set_idx_addr_owner");
+        info!("rx init dma_desc_rings");
         
     }
 
     /// Release the next RDes to the DMA engine
     pub fn set_idx_addr_owner(&mut self, idx: usize, skb_phys_addr: usize) {
-        let mut rd = RxDes {
-            rdes0: 0,
-            rdes1: 0,
-            rdes2: 0,
-            rdes3: 0,
+        let mut rd = Des {
+            txrx_status: 0,
+            dmamac_cntl: 0,
+            dmamac_addr: 0,
+            dmamac_next: 0,
         };
 
         // dwmac_desc_set_addr
-        rd.rdes0 = skb_phys_addr as u32;
-        rd.rdes1 = ((skb_phys_addr >> 32) & 0xFF) as u32;
+        rd.txrx_status = skb_phys_addr as u32;
+        rd.dmamac_cntl = ((skb_phys_addr >> 32) & 0xFF) as u32;
 
         // dwmac_set_rx_owner
         // rd.rdes3 |= RDES3_INT_ON_COMPLETION_EN;
@@ -217,7 +208,7 @@ impl<A:CvitekNicTraits> RxRing<A> {
 pub struct TxRing<A: CvitekNicTraits> {
     pub idx: usize,
     pub skbuf: Vec<usize>,
-    pub td: Dma<TxDes>,
+    pub td: Dma<Des>,
     phantom: PhantomData<A>,
 }
 
@@ -225,12 +216,12 @@ impl<A: CvitekNicTraits> TxRing<A> {
     pub fn new() -> Self {
         let count = 512;
 
-        let size = mem::size_of::<TxDes>() * count;
+        let size = mem::size_of::<Des>() * count;
         let pa = 0x89000000 + 0x3000 as usize;
         let va = A::phys_to_virt(pa);
 
         info!("tx des  pa: {:#x?} end {:#x?}", pa, pa + size);
-        let td_dma: Dma<TxDes> = Dma::new(va as _, pa, count);
+        let td_dma: Dma<Des> = Dma::new(va as _, pa, count);
         
         let skbuf = Vec::new();
         Self {
@@ -258,15 +249,15 @@ impl<A: CvitekNicTraits> TxRing<A> {
         self.skbuf.push(skb_va);
         let td = self.td.read_volatile(idx).unwrap();
 
-        let mut td = TxDes {
-            tdes0: 0,
-            tdes1: 0,
-            tdes2: 0,
-            tdes3: 0,
+        let mut td = Des {
+            txrx_status: 0,
+            dmamac_cntl: 0,
+            dmamac_addr: 0,
+            dmamac_next: 0,
         };
 
-        td.tdes0 = skb_phys_addr as u32; // Buffer 1
-        td.tdes1 = ((skb_phys_addr >> 32) & 0xff) as u32; // Not used
+        td.txrx_status = skb_phys_addr as u32; // Buffer 1
+        td.dmamac_cntl = ((skb_phys_addr >> 32) & 0xff) as u32; // Not used
 
 
         self.td.write_volatile(idx, &td);

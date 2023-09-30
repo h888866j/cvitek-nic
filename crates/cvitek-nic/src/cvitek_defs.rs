@@ -48,3 +48,6 @@ pub (crate) const STOREFORWARD:u32=1<<21;
 
 pub (crate) const RXSTART:u32=1<<1;
 pub (crate) const TXSTART:u32=1<<13;
+
+pub (crate) const CONFIG_TX_DESCR_NUM:usize =16;
+pub (crate) const CONFIG_RX_DESCR_NUM:usize =16;
