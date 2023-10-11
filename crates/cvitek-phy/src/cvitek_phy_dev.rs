@@ -1,20 +1,25 @@
 pub use core::marker::PhantomData;
+use smoltcp::phy;
+
 use super::cvitek_defs::*;
 use core::ptr::{write_volatile,read_volatile};
 pub struct CvitekPhyDevice<A: CvitekPhyTraits>
 {
     base_addr:usize,
+    phy_addr:u32,
     phantom: PhantomData<A>,
 }
 impl<A: CvitekPhyTraits> CvitekPhyDevice<A>
 {
     pub fn new(base_addr:usize)->Self{
-        let phymask:u32= 0xffffffff;
+        let mut phymask:u32= 0xffffffff;
         let phy_if_mode= 0;
         let mut phy= CvitekPhyDevice { 
             base_addr:A::phys_to_virt(base_addr),
+            phy_addr:0,
             phantom: PhantomData 
         };
+        phy.get_phy_by_mask(phymask);
         phy.reset();
         phy.configure();
         phy
@@ -189,7 +194,7 @@ impl<A: CvitekPhyTraits> CvitekPhyDevice<A>
             write_volatile(0x03009804 as *mut u32, 0x0000);
         }
     }
-    pub fn phy_read(&self,phy_addr:u8,reg_addr:u8,data:*mut u16) -> Result<i32,i32>{
+    pub fn phy_read(&self,phy_addr:u8,reg_addr:u8) -> Result<u16,i32>{
         let mut miiaddr=(( phy_addr as u32) << MIIADDRSHIFT) & MIIADDRMASK;
         miiaddr |= ((reg_addr as u32)<<MIIREGSHIFT) & MIIREGMASK;
         miiaddr |= MII_CLKRANGE_150_250M;
@@ -203,9 +208,8 @@ impl<A: CvitekPhyTraits> CvitekPhyDevice<A>
             if (val & MII_BUSY)==0{
                 unsafe{
                     val=read_volatile((self.base_addr+GMAC_REG_MIIDATA) as *mut u32);
-                    *data= val as u16;
                 }
-                return Ok(0);
+                return Ok(val as u16);
             }
             A::mdelay(1);
         }
@@ -239,9 +243,64 @@ impl<A: CvitekPhyTraits> CvitekPhyDevice<A>
     pub fn stop(&self){
         
     }
-    pub fn reset(&self){
+    fn reset(&self){
         let timeout=600;
+        let mut data:u16=0;
+        let data=self.phy_read(self.phy_addr as u8, CVI_MII_BMCR).unwrap();
+        let mut ret =self.phy_write(self.phy_addr as u8, CVI_MII_BMCR, data|CVI_BMCR_RESET);
+        match ret {
+            Ok(r) => {},
+            Err(r) =>{
+                info!("PHY soft reset failed\n");
+                return;
+            }
+        }
+    }
+    fn get_phy_by_mask(&mut self,phy_mask: u32 ) -> Result<i32, i32>
+    {
+        let mut mask:u32=phy_mask;
+        let mut phy_id:u32=0xffffffff;
+        while mask != 0 {
+            let addr:i32=ffs(phy_mask)-1;
+            let ret=self.read_phy_id(addr as u8);
+            match ret{
+                Ok(phy_id)=>{
+                    if (phy_id & 0x1fffffff)!=0x1fffffff {
+                        self.phy_addr=addr as u32;
+                        return Ok(0);
+                    }
+                },
+                Err(_e) => {}
+            }
+            mask &= !(1 << addr);
+        }
+        
+        Err(-1)
+    }
+    fn read_phy_id(&self,phy_addr:u8) -> Result<u32,i32>
+    {
+        let mut data:u16=0;
+        let mut id:u32=0;
 
+        let mut res=self.phy_read(phy_addr, CVI_MII_PHYSID1);
+
+        match res {
+            Ok(d) =>{ data =d;},
+            Err(ret) => { return Err(ret); }
+        }
+        id = data as u32;
+        id = (id & 0xffff) << 16;
+
+        res=self.phy_read(phy_addr, CVI_MII_PHYSID2);
+        
+        match res {
+            Ok(d) =>{ data =d;},
+            Err(ret) => { return Err(ret); }
+        }
+
+        id |= data as u32 & 0xffff;
+
+        Ok(id)
     }
 }
 pub trait CvitekPhyTraits {
@@ -265,4 +324,7 @@ pub fn clrsetbits(addr: u32,clear:u32, set:u32){
         val &= !clear;
         write_volatile(addr as *mut u32, val); 
     }
+}
+pub fn ffs(phy_mask:u32)->i32{
+    phy_mask as i32
 }

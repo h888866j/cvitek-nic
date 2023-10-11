@@ -47,3 +47,9 @@ pub (crate) const GMAC_DMA_REG_CURRHOSTTXDESC: usize = GMAC_DMA_REG_BASE_ADDR + 
 pub (crate) const GMAC_DMA_REG_CURRHOSTRXDESC: usize = GMAC_DMA_REG_BASE_ADDR + 0x4c;
 pub (crate) const GMAC_DMA_REG_CURRHOSTTXBUFFADDR: usize = GMAC_DMA_REG_BASE_ADDR + 0x50;
 pub (crate) const GMAC_DMA_REG_CURRHOSTRXBUFFADDR: usize = GMAC_DMA_REG_BASE_ADDR + 0x5c;
+
+pub (crate) const CVI_MII_PHYSID1:u8 =0x02;
+pub (crate) const CVI_MII_PHYSID2:u8 =0x03;
+
+pub (crate) const CVI_MII_BMCR:u8 =0x00;
+pub (crate) const CVI_BMCR_RESET:u16 =0x8000;
