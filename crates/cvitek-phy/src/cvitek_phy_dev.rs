@@ -255,6 +255,7 @@ impl<A: CvitekPhyTraits> CvitekPhyDevice<A>
                 return;
             }
         }
+        /// TODO: need a while loop and wait for the time out 
     }
     fn get_phy_by_mask(&mut self,phy_mask: u32 ) -> Result<i32, i32>
     {
@@ -326,5 +327,6 @@ pub fn clrsetbits(addr: u32,clear:u32, set:u32){
     }
 }
 pub fn ffs(phy_mask:u32)->i32{
+    /// TODO:realize the ffs funciton
     phy_mask as i32
 }
