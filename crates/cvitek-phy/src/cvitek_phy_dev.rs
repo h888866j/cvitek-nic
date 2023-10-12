@@ -244,18 +244,49 @@ impl<A: CvitekPhyTraits> CvitekPhyDevice<A>
         
     }
     fn reset(&self){
-        let timeout=600;
+        let mut timeout=600;
         let mut data:u16=0;
         let data=self.phy_read(self.phy_addr as u8, CVI_MII_BMCR).unwrap();
         let mut ret =self.phy_write(self.phy_addr as u8, CVI_MII_BMCR, data|CVI_BMCR_RESET);
         match ret {
-            Ok(r) => {},
-            Err(r) =>{
+            Ok(_r) => {},
+            Err(_r) =>{
                 info!("PHY soft reset failed\n");
                 return;
             }
         }
-        /// TODO: need a while loop and wait for the time out 
+        'loop_check:loop
+        {
+            let ret =self.phy_read(self.phy_addr as u8, CVI_MII_BMCR);
+            match ret {
+                Ok(r) => {
+                    if timeout==0 || (r & CVI_BMCR_RESET)==0
+                    {
+                        break 'loop_check;
+                    }
+                },
+                Err(_r) =>{
+                    info!("PHY soft reset failed\n");
+                    return;
+                }
+            }
+            A::mdelay(1);
+            timeout-=1;
+        }
+        let ret =self.phy_read(self.phy_addr as u8, CVI_MII_BMCR);
+        match ret {
+            Ok(r) => {
+                if r & CVI_BMCR_RESET != 0
+                {
+                    info!("PHY soft reset timeout\n");
+                }
+                return;
+            },
+            Err(_r) =>{
+                info!("PHY soft reset failed\n");
+                return;
+            }
+        }
     }
     fn get_phy_by_mask(&mut self,phy_mask: u32 ) -> Result<i32, i32>
     {
@@ -327,6 +358,38 @@ pub fn clrsetbits(addr: u32,clear:u32, set:u32){
     }
 }
 pub fn ffs(phy_mask:u32)->i32{
-    /// TODO:realize the ffs funciton
-    phy_mask as i32
+    
+    let table:[u8;256] =
+	[
+	  0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+	  6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
+	  7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+	  7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+	  8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
+	  8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
+	  8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
+	  8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8
+    ];
+    let i:i32=phy_mask as i32;
+    let mut a:u32=0;
+    let x:u32 = i as u32 & (-i) as u32;
+
+    if x<=0xffff{
+        if x <= 0xff {
+            a=0;
+        }
+        else {
+            a=8;
+        }
+    }
+    else{
+        if x <= 0xffffff{
+            a=16;
+        }
+        else {
+            a=24;
+        }
+    }
+    let index:usize=(x>>a) as usize;
+    return (table[index] as u32 + a) as i32;
 }
