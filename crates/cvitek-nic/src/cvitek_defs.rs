@@ -51,3 +51,8 @@ pub (crate) const TXSTART:u32=1<<13;
 
 pub (crate) const CONFIG_TX_DESCR_NUM:usize =16;
 pub (crate) const CONFIG_RX_DESCR_NUM:usize =16;
+
+//irq
+
+pub (crate) const GMAC0_IRQ:usize = 57;
+pub (crate) const GMAC1_IRQ:usize = 56;

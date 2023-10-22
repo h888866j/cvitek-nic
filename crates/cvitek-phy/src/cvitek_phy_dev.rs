@@ -19,7 +19,7 @@ impl<A: CvitekPhyTraits> CvitekPhyDevice<A>
             phy_addr:0,
             phantom: PhantomData 
         };
-        phy.get_phy_by_mask(phymask);
+        let _ =phy.get_phy_by_mask(phymask);
         phy.reset();
         phy.configure();
         phy

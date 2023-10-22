@@ -2,6 +2,7 @@ use axalloc::global_allocator;
 use axhal::mem::{phys_to_virt, virt_to_phys};
 use axhal::time::{busy_wait, Duration, current_time};
 
+use axhal::irq::{register_handler_common,IrqHandler};
 
 use driver_net::cviteknic::CvitekNicTraits;
 
@@ -38,6 +39,10 @@ impl CvitekNicTraits for CvitekNicTraitsImpl {
     }
     fn current_time() -> usize {
         current_time().as_millis() as usize
+    }
+    fn register_irq(irq_num: usize, handler: IrqHandler) -> bool
+    {
+        register_handler_common(irq_num, handler)
     }
 }
 

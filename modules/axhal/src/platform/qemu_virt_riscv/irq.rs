@@ -3,6 +3,8 @@
 use crate::irq::IrqHandler;
 use lazy_init::LazyInit;
 use riscv::register::sie;
+use core::ptr::{read_volatile,write_volatile};
+use axhal::mem::{phys_to_virt, virt_to_phys};
 
 /// `Interrupt` bit in `scause`
 pub(super) const INTC_IRQ_BASE: usize = 1 << (usize::BITS - 1);
@@ -39,6 +41,22 @@ macro_rules! with_cause {
 pub fn set_enable(scause: usize, _enabled: bool) {
     if scause == S_EXT {
         // TODO: set enable in PLIC
+        /// let PLIC_OFF:usize=0x0c00_0000;
+        let PLIC_OFF:usize=0x7000_0000;
+        let x:u32=(scause as u32)/32;
+        let y:u32=(scause as u32)%32;
+        let PLIC_H0_MIE0:usize=0x0002_0000;
+        
+        let PLIC_H:usize=PLIC_OFF+PLIC_H0_MIE0+x as usize;
+        let PLIC_MIE:usize=1<<y;
+
+        info!("start test plic read!\n");
+
+        unsafe{
+            let curr_reg_num=read_volatile(phys_to_virt(PLIC_H) as *mut u32);
+            info!("the plic h is {}",curr_reg_num);
+        }
+        
     }
 }
 

@@ -15,10 +15,10 @@ use core::str::FromStr;
 
 use libax::io::{self, prelude::*};
 use libax::net::{IpAddr, TcpListener, TcpStream, SocketAddr, UdpSocket};
-use libax::thread;
+
 
 const LOCAL_IP: &str = "192.168.88.77";
-const LOCAL_PORT: u16 = 61002;
+/// const LOCAL_PORT: u16 = 61002;
 
 
 

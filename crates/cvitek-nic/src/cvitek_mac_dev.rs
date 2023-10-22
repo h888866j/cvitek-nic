@@ -8,6 +8,8 @@ use core::ptr::{NonNull, read_volatile, write_volatile};
 use core::time::Duration;
 use core::{mem, ptr};
 
+pub type IrqHandler = fn();
+
 use super::cvitek_defs::*;
 pub struct CvitekNicDevice<A: CvitekNicTraits> {
     iobase_pa: usize,
@@ -15,6 +17,11 @@ pub struct CvitekNicDevice<A: CvitekNicTraits> {
     rx_rings: RxRing<A>,
     tx_rings: TxRing<A>,
     phantom: PhantomData<A>,
+}
+
+pub fn receive_irq_handler()
+{
+    info!("receive a package");
 }
 
 impl <A: CvitekNicTraits> CvitekNicDevice<A> {
@@ -58,6 +65,7 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
             write_volatile((self.iobase_va+GMAC_REG_CONF) as *mut u32, 0x41cc00);
             write_volatile((self.iobase_va+GMAC_DMA_REG_INTENABLE) as *mut u32, 0x10040);
         }
+        A::register_irq(GMAC0_IRQ,receive_irq_handler);
         info!("init tx and rxring\n");
     }
     pub fn read_mac_address(&self) -> [u8; 6]
@@ -133,6 +141,7 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
 
         tx_rings.set_tail_ptr(self.iobase_va);
     }
+    
 
 }
 
@@ -353,4 +362,6 @@ pub trait CvitekNicTraits {
     fn mdelay(m_times: usize);
 
     fn current_time() -> usize;
+
+    fn register_irq(irq_num: usize, handler: IrqHandler) -> bool;
 }
