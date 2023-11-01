@@ -71,6 +71,8 @@ mod bus;
 mod drivers;
 mod dummy;
 mod structs;
+mod dma_remap;
+pub use dma_remap::dma_hs_remap_init;
 
 #[cfg(feature = "virtio")]
 mod virtio;
@@ -128,6 +130,7 @@ impl AllDevices {
 
     /// Probes all supported devices.
     fn probe(&mut self) {
+        dma_hs_remap_init();
         for_each_drivers!(type Driver, {
             if let Some(dev) = Driver::probe_global() {
                 info!(

@@ -36,17 +36,25 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
             tx_rings: tx_ring,
             phantom: PhantomData,
         };
+        info!("start register_irq\n");
+        A::register_irq(GMAC0_IRQ,receive_irq_handler);
+        info!("start generate a new nic device\n");
         nic.init();
         nic
     }
 
     pub fn init(&mut self) {
         // reset mac
+        info!("test 1\n");
         let start_time:usize =A::current_time();
+        info!("test 2 {:#10x} {}\n",self.iobase_va,GMAC_DMA_REG_BUS_MODE);
         unsafe{
             let mut val=read_volatile((self.iobase_va+GMAC_DMA_REG_BUS_MODE) as *mut u32);
+            info!("test 3\n");
             write_volatile((self.iobase_va+GMAC_DMA_REG_BUS_MODE) as *mut u32, val | DMAMAC_SRST);
+            info!("test 4\n");
             val=read_volatile((self.iobase_va+GMAC_DMA_REG_BUS_MODE) as *mut u32);
+            info!("test 5\n");
             while (val &DMAMAC_SRST)!=0{
                 val=read_volatile((self.iobase_va+GMAC_DMA_REG_BUS_MODE) as *mut u32);
                 if (A::current_time()-start_time)>=CONFIG_MDIO_TIMEOUT {
@@ -55,9 +63,11 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
                 A::mdelay(100);
             }
         }
+        info!("test 6\n");
         // alloc rx_ring and tx_ring
         self.rx_rings.init_dma_desc_rings();
         self.tx_rings.init_dma_desc_rings();
+        info!("test 7\n");
         // set mac regs
         unsafe{
             write_volatile((self.iobase_va+GMAC_DMA_REG_OPMODE) as *mut u32, 0x2202906);
@@ -65,7 +75,7 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
             write_volatile((self.iobase_va+GMAC_REG_CONF) as *mut u32, 0x41cc00);
             write_volatile((self.iobase_va+GMAC_DMA_REG_INTENABLE) as *mut u32, 0x10040);
         }
-        A::register_irq(GMAC0_IRQ,receive_irq_handler);
+        
         info!("init tx and rxring\n");
     }
     pub fn read_mac_address(&self) -> [u8; 6]

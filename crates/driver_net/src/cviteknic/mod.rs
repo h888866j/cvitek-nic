@@ -30,7 +30,7 @@ where
     phantom: PhantomData<A>,
 }
 
-pub (crate) const GMAC0_REG_BASE_ADDR: usize = 0x04510000;
+pub (crate) const GMAC0_REG_BASE_ADDR: usize = 0x0451_0000;
 
 impl <A> CvitekNic<A> 
 where

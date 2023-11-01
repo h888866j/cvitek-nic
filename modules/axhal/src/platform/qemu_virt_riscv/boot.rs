@@ -2,6 +2,7 @@ use riscv::register::satp;
 
 use axconfig::{PHYS_VIRT_OFFSET, TASK_STACK_SIZE};
 
+use core::ptr::read_volatile;
 use crate::console::putchar;
 
 /*
@@ -46,6 +47,7 @@ static mut BOOT_STACK: [u8; TASK_STACK_SIZE] = [0; TASK_STACK_SIZE];
 static mut BOOT_PT_SV39: [u64; 512] = [0; 512];
 
 unsafe fn init_boot_page_table() {
+    read_volatile(0x7000_0000 as *mut u32);
     // 0x8000_0000..0xc000_0000, VRWX_GAD, 1G block
     BOOT_PT_SV39[2] = (0x80000 << 10) | (0x7 << 60) | 0xef;
     // 0xffff_ffc0_8000_0000..0xffff_ffc0_c000_0000, VRWX_GAD, 1G block
