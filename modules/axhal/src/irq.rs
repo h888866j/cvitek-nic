@@ -25,7 +25,7 @@ pub(crate) fn dispatch_irq_common(irq_num: usize) {
 /// It also enables the IRQ if the registration succeeds. It returns `false` if
 /// the registration failed.
 #[allow(dead_code)]
-pub(crate) fn register_handler_common(irq_num: usize, handler: IrqHandler) -> bool {
+pub fn register_handler_common(irq_num: usize, handler: IrqHandler) -> bool {
     if irq_num < MAX_IRQ_COUNT && IRQ_HANDLER_TABLE.register_handler(irq_num, handler) {
         set_enable(irq_num, true);
         return true;
