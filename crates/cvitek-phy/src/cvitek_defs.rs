@@ -14,8 +14,7 @@ pub (crate) const MII_BUSY: u32 = 1 << 0;
 pub (crate) const MII_WRITE: u32 = 1 << 1;
 pub (crate) const CONFIG_MDIO_TIMEOUT :usize = 3*1000;
 
-pub (crate) const GMAC0_REG_BASE_ADDR: usize = 0x04510000;
-pub (crate) const GMAC1_REG_BASE_ADDR: usize = 0x04520000;
+pub (crate) const GMAC_REG_BASE_ADDR: usize = 0x04070000;
 pub (crate) const GMAC_REG_CONF:usize = 0x0;
 pub (crate) const GMAC_REG_FRAMEFILT:usize = 0x04;
 pub (crate) const GMAC_REG_HASHTABLEHIGH:usize = 0x08;

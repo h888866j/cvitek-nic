@@ -1,7 +1,6 @@
 /// cvitek mac definations
 
-pub (crate) const GMAC0_REG_BASE_ADDR: usize = 0x04510000;
-pub (crate) const GMAC1_REG_BASE_ADDR: usize = 0x04520000;
+pub (crate) const GMAC_REG_BASE_ADDR: usize = 0x04070000;
 pub (crate) const GMAC_REG_CONF:usize = 0x0;
 pub (crate) const GMAC_REG_FRAMEFILT:usize = 0x04;
 pub (crate) const GMAC_REG_HASHTABLEHIGH:usize = 0x08;
@@ -54,5 +53,4 @@ pub (crate) const CONFIG_RX_DESCR_NUM:usize =16;
 
 //irq
 
-pub (crate) const GMAC0_IRQ:usize = 57;
-pub (crate) const GMAC1_IRQ:usize = 56;
+pub (crate) const GMAC_IRQ:usize = 31;
