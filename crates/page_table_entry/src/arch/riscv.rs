@@ -28,7 +28,10 @@ bitflags::bitflags! {
         /// D bit was cleared.
         const D =   1 << 7;
         /// Kernel
-        const K =   7 << 60;
+        const K =   6 << 60;
+
+        /// Device
+        const DV=1<<63;
     }
 }
 
@@ -46,6 +49,9 @@ impl From<PTEFlags> for MappingFlags {
         }
         if f.contains(PTEFlags::U) {
             ret |= Self::USER;
+        }
+        if f.contains(PTEFlags::DV) {
+            ret |= Self::DEVICE;
         }
         ret
     }
@@ -68,6 +74,9 @@ impl From<MappingFlags> for PTEFlags {
         }
         if f.contains(MappingFlags::USER) {
             ret |= Self::U;
+        }
+        if f.contains(MappingFlags::DEVICE) {
+            ret |= Self::DV;
         }
         ret
     }

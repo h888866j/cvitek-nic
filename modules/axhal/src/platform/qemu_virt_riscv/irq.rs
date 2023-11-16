@@ -57,7 +57,6 @@ pub fn set_enable(irq_num: usize, _enabled: bool) {
     let plic_h0_sie_reg_enable_mask:u32 = 1 << y;
 
     // info!("Plic enable for irq_num:{}!\n",irq_num);
-
     unsafe{
         let plic_h0_sie_reg_va:*mut u32 = phys_to_virt(plic_h0_sie_reg_addr.into()).as_usize() as *mut u32;
         let plic_prio_reg_va:*mut u32 = phys_to_virt(plic_prio_reg_addr.into()).as_usize() as *mut u32;
@@ -79,7 +78,7 @@ pub fn set_enable(irq_num: usize, _enabled: bool) {
             write_volatile(plic_h0_sie_reg_va, sie_curr_reg_value & !plic_h0_sie_reg_enable_mask);     
         }
 
-        let sie_curr_reg_value = read_volatile(plic_h0_sie_reg_va);
+        // let sie_curr_reg_value = read_volatile(plic_h0_sie_reg_va);
         // info!("The sie_curr_reg_value after write volatile: {}", sie_curr_reg_value);
     }
     // remember to setup PLIC_TH reg during interrupt init!  set it to 0 to allow all the external interrupt sources / irqns.

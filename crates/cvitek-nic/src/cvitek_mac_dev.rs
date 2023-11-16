@@ -36,13 +36,16 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
             tx_rings: tx_ring,
             phantom: PhantomData,
         };
-        A::register_irq(GMAC_IRQ,receive_irq_handler);
+        info!("try to register_irq");
+        //A::register_irq(GMAC_IRQ,receive_irq_handler);
+        info!("finish register_irq");
         nic.init();
         nic
     }
 
     pub fn init(&mut self) {
         // reset mac
+        info!("try to reset dma!");
         let start_time:usize =A::current_time();
         unsafe{
             let mut val=read_volatile((self.iobase_va+GMAC_DMA_REG_BUS_MODE) as *mut u32);
@@ -56,6 +59,7 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
                 A::mdelay(100);
             }
         }
+        info!("finish try to reset dma!");
         // alloc rx_ring and tx_ring
         self.rx_rings.init_dma_desc_rings();
         self.tx_rings.init_dma_desc_rings();

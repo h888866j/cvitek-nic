@@ -1,7 +1,7 @@
 //! Interrupt management.
 
 use handler_table::HandlerTable;
-
+use riscv::register::sstatus::{clear_sie,set_sie};
 use crate::platform::irq::MAX_IRQ_COUNT;
 
 pub use crate::platform::irq::{dispatch_irq, register_handler, set_enable};
@@ -27,7 +27,13 @@ pub(crate) fn dispatch_irq_common(irq_num: usize) {
 #[allow(dead_code)]
 pub fn register_handler_common(irq_num: usize, handler: IrqHandler) -> bool {
     if irq_num < MAX_IRQ_COUNT && IRQ_HANDLER_TABLE.register_handler(irq_num, handler) {
+        unsafe {
+            clear_sie();
+        }
         set_enable(irq_num, true);
+        unsafe{
+            set_sie();
+        }
         return true;
     }
     warn!("register handler for IRQ {} failed", irq_num);

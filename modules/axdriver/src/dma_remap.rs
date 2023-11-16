@@ -1,3 +1,4 @@
+use axhal::mem::{phys_to_virt, virt_to_phys};
 use core::ptr::{read_volatile, write_volatile};
 const  REG_SDMA_DMA_CH_REMAP0:usize=	0x03000154;
 const  REG_SDMA_DMA_CH_REMAP1:usize=	0x03000158;
@@ -61,7 +62,7 @@ pub fn dma_hs_remap_init()
     remap0_val |= 1 << 31;
 	remap1_val |= 1 << 31;
     unsafe{
-        write_volatile(REG_SDMA_DMA_CH_REMAP0 as *mut u32,remap0_val as u32);
-        write_volatile(REG_SDMA_DMA_CH_REMAP1 as *mut u32,remap1_val as u32);
+        write_volatile(phys_to_virt(REG_SDMA_DMA_CH_REMAP0.into()).as_usize() as *mut u32,remap0_val as u32);
+        write_volatile(phys_to_virt(REG_SDMA_DMA_CH_REMAP1.into()).as_usize() as *mut u32,remap1_val as u32);
     }
 }
