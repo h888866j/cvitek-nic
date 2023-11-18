@@ -52,3 +52,11 @@ pub (crate) const CVI_MII_PHYSID2:u8 =0x03;
 
 pub (crate) const CVI_MII_BMCR:u8 =0x00;
 pub (crate) const CVI_BMCR_RESET:u16 =0x8000;
+
+pub (crate) const ETH_PHY_BASE:usize = 0x03009000;
+pub (crate) const ETH_PHY_INIT_MASK:usize = 0xFFFFFFF9;
+pub (crate) const ETH_PHY_SHUTDOWN:usize = 1 << 1;
+pub (crate) const ETH_PHY_POWERUP:usize = 0xFFFFFFFD;
+pub (crate) const ETH_PHY_RESET:usize = 0xFFFFFFFB;
+pub (crate) const ETH_PHY_RESET_N:usize = 1 << 2;
+pub (crate) const ETH_PHY_LED_LOW_ACTIVE:usize = 1 << 3;

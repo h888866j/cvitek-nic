@@ -36,9 +36,7 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
             tx_rings: tx_ring,
             phantom: PhantomData,
         };
-        info!("try to register_irq");
-        //A::register_irq(GMAC_IRQ,receive_irq_handler);
-        info!("finish register_irq");
+        A::register_irq(GMAC_IRQ,receive_irq_handler);
         nic.init();
         nic
     }
@@ -146,7 +144,6 @@ impl <A: CvitekNicTraits> CvitekNicDevice<A> {
 
         tx_rings.set_tail_ptr(self.iobase_va);
     }
-    
 
 }
 
